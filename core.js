@@ -19,7 +19,7 @@
 =========================================================================*/
 
 
-    
+   
 function applyTransform(roll){
         
     
@@ -42,49 +42,50 @@ function applyTransform(roll){
     cursor.rewind(1);       // beginning of selection
     ///////////////////////////////////////////////////
 
-    curScore.startCmd()
-    for (var track=startTrack; track<endTrack; track++){ 
-    cursor.track=track
-    cursor.rewind(startTick) 
-    if(!cursor.element){ //check if voice exists
-       continue
-    } 
-    var onlyPitches=getArrays()  
-    
-    rollChord(onlyPitches, roll)
-}
+    curScore.startCmd()    
+               
+        var onlyPitches=getArrays()      
+        rollChord(onlyPitches, roll)
+        curScore.selection.selectRange(startTick, endTick, startStaff, endStaff);
 
-    curScore.selection.selectRange(startTick, endTick, startStaff, endStaff);
     curScore.endCmd()   
 
 
     ///////////   Get arrays: Pitches, onlyPitches, Rhythm (durations)///////
+    
+      
+    
+    
     function getArrays(){
         var onlyPitches=[]///without rests
         
-        while (cursor.segment != null && cursor.tick < endTick) {            
-            var chord=[]           
-            var el=cursor.element
-
-            if(el.type == Element.REST) { 
-                var chord = 'REST'; 
+        while (cursor.segment != null && cursor.tick < endTick) {
+            var chord=[]            
+            for(var track=startTrack; track<endTrack; track++){
+                cursor.track=track
+            
+                if( !cursor.element) continue        
+                var el=cursor.element            
+            
+                if (el.type == Element.CHORD) {
+                    for (var n in el.notes){    
+                        var chordNote ={ 
+                            pitch: el.notes[n].pitch, 
+                            tpc: el.notes[n].tpc, 
+                            tpc1: el.notes[n].tpc1, 
+                            tpc2: el.notes[n].tpc2 
+                        }                                    
+                        chord.push(chordNote)                    
+                    }                    
+                }  
+                track++
             }
-            if (el.type == Element.CHORD) {
-                for (var n in el.notes){    
-                    var chordNote ={ 
-                        pitch: el.notes[n].pitch, 
-                        tpc: el.notes[n].tpc, 
-                        tpc1: el.notes[n].tpc1, 
-                        tpc2: el.notes[n].tpc2 
-                    }                                    
-                    chord.push(chordNote)                    
-                }
-                onlyPitches.push(chord)  ///array without rests
-            }              
-            cursor.next();            
+            onlyPitches.push(chord)          
+            cursor.track=startTrack
+            cursor.next();                       
         }
         
-        cursor.rewindToTick(startTick)
+        cursor.rewind(1)        
         return onlyPitches
     }
     
@@ -93,59 +94,67 @@ function applyTransform(roll){
 
     
     function rollChord(Pitches,roll){
-                    
         var i=0
-        var C=Pitches[i]
+        while (cursor.segment != null && cursor.tick < endTick) {  
         
-        C.sort(function(a, b){return a.pitch%12 - b.pitch%12}); //sorting up
-        
-        for (var m=0; m<C.length;m++){            
-            C[m].pitch%=12
-        }
-        
-        ///map scale of chord notes
-        var CLength= C.length
-        for (var k=1; k<12; k++){
-            for (var m=0; m<CLength; m++){  
-                var n= JSON.parse(JSON.stringify(C[m])); // clone C[m] object without shared reference                   
-                n.pitch+=12*k 
-                C.push(n)
-            }
-        }  
-        
-        
-        while (cursor.segment != null && cursor.tick < endTick) {
-            var el=cursor.element              
-            if (el.type == Element.CHORD) { 
+            var C=[]
             
-                if (roll=="up"){
-                    for (var n=el.notes.length-1; n>=0; n--){ 
-                        var idx = C.findIndex(function(obj){return obj.pitch == el.notes[n].pitch});                
-                                       
-                        el.notes[n].pitch= C[idx+1].pitch  ///change lowest note pitch and tpc
-                        el.notes[n].tpc1= C[idx+1].tpc1   
-                        el.notes[n].tpc2= C[idx+1].tpc2 
-                    }
+            Pitches[i].sort(function(a, b){return a.pitch%12 - b.pitch%12}); //sorting up
+            
+            for (var m=0; m<Pitches[i].length;m++){
+                Pitches[i][m].pitch%=12
+                if(!C.some(function(x){return x.pitch==Pitches[i][m].pitch})){        ////discard note is pitch already exists                        
+                    C.push(Pitches[i][m])
+                }               
+            }
+            
+            ///map scale of chord notes
+            var CLength= C.length
+            for (var k=1; k<12; k++){
+                for (var m=0; m<CLength; m++){  
+                    var n= JSON.parse(JSON.stringify(C[m])); // clone C[m] object without shared reference                   
+                    n.pitch+=12*k 
+                    C.push(n)
                 }
-                
-                if (roll=="down"){
-                    for (var n=0; n<el.notes.length; n++){ 
-                        var idx = C.findIndex(function(obj){return obj.pitch == el.notes[n].pitch});                
-                                      
-                        el.notes[n].pitch= C[idx-1].pitch  ///change lowest note pitch and tpc
-                        el.notes[n].tpc1= C[idx-1].tpc1   
-                        el.notes[n].tpc2= C[idx-1].tpc2 
-                    }
-                }
-                
             }  
+            
+            
+            for(var track=startTrack; track<endTrack; track++){
+                cursor.track=track
                 
-            i++     
+                if( !cursor.element) continue          
+                
+                var el=cursor.element              
+                if (el.type == Element.CHORD) { 
+                
+                    if (roll=="up"){
+                        for (var n=el.notes.length-1; n>=0; n--){ 
+
+                            var idx = C.findIndex(function(obj){return obj.pitch == el.notes[n].pitch});  
+                            el.notes[n].pitch= C[idx+1].pitch  ///change lowest note pitch and tpc
+                            el.notes[n].tpc1= C[idx+1].tpc1   
+                            el.notes[n].tpc2= C[idx+1].tpc2 
+                        }
+                    }
+                    
+                    if (roll=="down"){
+                        for (var n=0; n<el.notes.length; n++){ 
+
+                            var idx = C.findIndex(function(obj){return obj.pitch == el.notes[n].pitch});   
+                            el.notes[n].pitch= C[idx-1].pitch  ///change lowest note pitch and tpc
+                            el.notes[n].tpc1= C[idx-1].tpc1   
+                            el.notes[n].tpc2= C[idx-1].tpc2 
+                        }
+                    }
+                    
+                }              
+                track++
+            }
+                    
+            i++                 
+            cursor.track=startTrack 
             cursor.next()
         }  
-    }   ///  end rollChord   
-
+    }   ///  end rollCHord
 }///end transform
 
-
-   

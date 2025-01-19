@@ -10,13 +10,13 @@ MuseScore {
     version: "1.0"
     //4.4 title: "Roll voicing down"
     //4.4 thumbnailName: "thumbnail.jpg"
-    //4.4 categoryCode: "Editing-Tools"
+    //4.4 categoryCode: "Roll Voicing"
 
     Component.onCompleted: {
         if (mscoreMajorVersion >= 4) {
             title = "Roll voicing down"
             thumbnailName = "thumbnail.jpg"
-            categoryCode = "Editing-Tools"
+            categoryCode = "Roll Voicing"
         }
     }
        

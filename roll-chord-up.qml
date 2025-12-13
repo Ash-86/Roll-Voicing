@@ -22,6 +22,6 @@ MuseScore {
         
     onRun: {            
              
-        Core.applyTransform("chord", "up")     
+        Core.rollListSel("chord", "up")     
     }
 }

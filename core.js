@@ -30,10 +30,15 @@ function rollListSel(type, roll) {
 
     if (type == "melody") rollByAttribute(byTrack)
     if (type == "chord") rollByAttribute(byTick)
+
+    curScore.selection.clear()
+    for (var i = 0; i < notes.length; i++) {        
+        curScore.selection.select(notes[i], true)
+    }
     
     curScore.endCmd()
+    quit()
     
-
     function rollByAttribute(byAttribute) {
         for (var att in byAttribute) {
             var notesOfAtt = byAttribute[att]

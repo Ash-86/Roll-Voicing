@@ -5,16 +5,16 @@ import MuseScore 3.0
 import "core.js" as Core 
 
 MuseScore {
-    menuPath: "Plugins.Roll melody up"
-    description: "Roll melody  down"
+    menuPath: "Plugins.Roll arpeggio up"
+    description: "Roll arpeggio  down"
     version: "1.0"
-    //4.4 title: "Roll melody up"
+    //4.4 title: "Roll arpeggio up"
     //4.4 thumbnailName: "thumbnail.jpg"
     //4.4 categoryCode: "Roll Voicing"
 
     Component.onCompleted: {
         if (mscoreMajorVersion >= 4) {
-            title = "Roll melody up"
+            title = "Roll arpeggio up"
             thumbnailName = "thumbnail.jpg"
             categoryCode = "Roll Voicing"
         }
@@ -23,7 +23,7 @@ MuseScore {
         
     onRun: {            
              
-        Core.rollListSel("melody", "up")     
+        Core.rollListSel("arpeggio", "up")     
     }
 
 }

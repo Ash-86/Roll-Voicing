@@ -28,9 +28,17 @@ function rollListSel(type, roll) {
 
     curScore.startCmd()
 
-    if (type == "melody") rollByAttribute(byTrack)
+    if (type == "arpeggio") rollByAttribute(byTrack)
     if (type == "chord") rollByAttribute(byTick)
-
+    
+    //// a hack to play selected chord ///////
+    var cursor = curScore.newCursor()
+    cursor.rewind(1)
+    cursor.next()
+    curScore.selection.select(cursor.element)
+    cmd("prev-chord")
+    ////////////////////////////////////////
+    
     curScore.selection.clear()
     for (var i = 0; i < notes.length; i++) {        
         curScore.selection.select(notes[i], true)

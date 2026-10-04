@@ -26,7 +26,8 @@ function rollListSel(type, roll) {
         byTick[tick].push(notes[i])
     }
 
-    curScore.startCmd()
+    var cmdTitle = "Roll " + type + " " + roll
+    curScore.startCmd(cmdTitle)
 
     if (type == "arpeggio") rollByAttribute(byTrack)
     if (type == "chord") rollByAttribute(byTick)

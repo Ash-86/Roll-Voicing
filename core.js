@@ -5,25 +5,23 @@ function rollListSel(type, roll) {
     var els = curScore.selection.elements
     
     var notes = [];
-    for (var i = 0; i < els.length; i++) { //change elements array to a js array to operate on by sort/filter ...
-        if (els[i].pitch != undefined) {
-            notes.push(els[i])
-        }
-    }
-    
     var byTrack = {}
     var byTick = {}
-    for (var i = 0; i < notes.length; i++) {
-        var track = notes[i].track
-        var tick = notes[i].parent.parent.tick
-        if (!byTrack[track]) {
-            byTrack[track] = []
+    for (var i = 0; i < els.length; i++) { //change elements array to a js array to operate on by sort/filter ...
+        if (els[i].pitch != undefined) {
+            var n = els[i]
+            notes.push(n)
+            var track = n.track
+            var tick = n.parent.parent.tick
+            if (!byTrack[track]) {
+                byTrack[track] = []
+            }
+            if (!byTick[tick]) {
+                byTick[tick] = []
+            }
+            byTrack[track].push(n)
+            byTick[tick].push(n)
         }
-        if (!byTick[tick]) {
-            byTick[tick] = []
-        }
-        byTrack[track].push(notes[i])
-        byTick[tick].push(notes[i])
     }
 
     var cmdTitle = "Roll " + type + " " + roll
@@ -61,7 +59,7 @@ function rollListSel(type, roll) {
                     tpc2: notesOfAtt[m].tpc2
                 }
 
-                if (!primes.some(function (x) { return x.pitch == prime.pitch })) {        ////discard note is pitch already exists                        
+                if (!primes.some(function (x) { return x.pitch == prime.pitch })) {        ////discard note if pitch already exists                        
                     primes.push(prime)
                 }
             }
